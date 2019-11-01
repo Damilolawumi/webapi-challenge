@@ -14,7 +14,6 @@ router.get('/', (req, res) => {
 
 })
 
-// router.get('/:id/actions', (req, res) )
 
 router.delete('/:id', (req, res) => {
     const { id } = req.params
@@ -46,47 +45,27 @@ router.post('/:id', validateProjectId, validateAction, (req, res) => {
 })
 
 router.put('/:id', validateActionId, validateAction, (req, res) => {
-  actions.update(req.action.id, req.body)
-  .then(() => {
-      res.status(200).json({...req.action, ...req.body})
-  })
-  .catch(() => {
-      res.status(500).json({ errorMessage: 'internal server error'})
-  })
+    actions.update(req.action.id, req.body)
+        .then(() => {
+            res.status(200).json({ ...req.action, ...req.body })
+        })
+        .catch(() => {
+            res.status(500).json({ errorMessage: 'internal server error' })
+        })
 })
 
 function validateAction(req, res, next) {
     if (Object.keys(req.body).length) {
         if (req.body.notes && req.body.description) {
             next();
-
         }
         else {
             res.status(400).json({ message: "all fields are required!" });
         }
-
     }
     else {
         res.status(400).json({ message: "missing action data" });
     }
-}
-
-function validateProjectId(req, res, next) {
-    const id = req.params.id;
-    projects.get(id)
-        .then(project => {
-            if (project) {
-
-                req.project = project;
-                next()
-            } else {
-                res.status(404).json({ message: 'Project id does not correspond with an actual Project' });
-            }
-        })
-        .catch(error => {
-            res.status(404).json({ message: "invalid project id: " + error.message })
-        })
-
 }
 
 function validateActionId(req, res, next) {
@@ -102,7 +81,24 @@ function validateActionId(req, res, next) {
         .catch(error => {
             res.status(404).json({ message: "invalid Action id: " + error.message })
         })
+}
+
+
+function validateProjectId(req, res, next) {
+    projects.get(req.params.id)
+        .then(project => {
+            if (project) {
+                req.project = project;
+                next()
+            } else {
+                res.status(404).json({ message: 'Project id does not correspond with an actual Project' });
+            }
+        })
+        .catch(error => {
+            res.status(404).json({ message: "invalid project id: " + error.message })
+        })
 
 }
+
 
 module.exports = router
