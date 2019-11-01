@@ -88,3 +88,6 @@ typings/
 
 # VSCode settings
 .vscode/
+
+# dotenv environment variables file
+.env
